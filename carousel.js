@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
   console.log("Script GSAP avviato");
   
-  // Indice corrente e totale slide
+  // Stato corrente
   let currentIndex = 0;
   const totalSlides = 8;
   
-  // URL dei pulsanti
+  // URL per il pulsante dinamico
   const buttonUrls = [
     "https://www.purapharma.eu/products/levacel-plus",
     "https://www.purapharma.eu/products/venestasi",
@@ -20,41 +20,28 @@ document.addEventListener('DOMContentLoaded', function() {
   // Durata animazione
   const duration = 0.6;
   
-  // Funzione helper per selezionare elementi con gestione errori
-  function safeSelect(baseClass, index) {
-    const num = index < 10 ? `0${index}` : index;
-    
-    // Prova varie combinazioni di classi
-    let selector = `.${baseClass}.is--${num}, .${baseClass}.is-${num}`;
-    let elements = document.querySelectorAll(selector);
-    
-    if (elements.length === 0) {
-      console.warn(`Nessun elemento trovato per ${baseClass} indice ${num}`);
-    }
-    
-    return elements;
-  }
-  
-  // Inizializza lo stato UI
+  // Inizializza lo stato iniziale
   function initializeUI() {
-    console.log("Inizializzazione stato UI");
+    console.log("Inizializzazione UI");
     
     // Nascondi tutti gli elementi tranne il primo
     for (let i = 2; i <= totalSlides; i++) {
+      const iStr = i < 10 ? `0${i}` : i;
+      
       // Titoli
-      gsap.set(safeSelect('product_title', i), { y: 100 });
+      gsap.set(`.product_title.is--${iStr}`, { y: 100 });
       
       // Sottotitoli
-      gsap.set(safeSelect('product_sub', i), { opacity: 0, filter: 'blur(10px)' });
+      gsap.set(`.product_sub.is--${iStr}`, { opacity: 0, filter: 'blur(10px)' });
       
       // Box immagini
-      gsap.set(safeSelect('image_box', i), { scale: 0, opacity: 0 });
+      gsap.set(`.image_box.is--${iStr}`, { scale: 0, opacity: 0 });
       
       // Paragrafi
-      gsap.set(safeSelect('product_paragraph', i), { opacity: 0, y: 30, filter: 'blur(10px)' });
+      gsap.set(`.product_paragraph.is--${iStr}`, { opacity: 0, y: 30, filter: 'blur(10px)' });
     }
     
-    // Imposta il pulsante dinamico
+    // Imposta il link del pulsante
     const dynamicButton = document.getElementById('dinamic-button');
     if (dynamicButton) {
       dynamicButton.href = buttonUrls[0];
@@ -66,28 +53,21 @@ document.addEventListener('DOMContentLoaded', function() {
   function animateToSlide(fromIndex, toIndex, direction) {
     console.log(`Animazione da ${fromIndex+1} a ${toIndex+1}, direzione: ${direction}`);
     
-    // Indici per selettori (1-based)
-    const fromNum = fromIndex + 1;
-    const toNum = toIndex + 1;
+    // Formatta gli indici
+    const fromStr = (fromIndex + 1) < 10 ? `0${fromIndex + 1}` : (fromIndex + 1);
+    const toStr = (toIndex + 1) < 10 ? `0${toIndex + 1}` : (toIndex + 1);
     
     // Timeline GSAP
-    const tl = gsap.timeline({
-      onStart: function() {
-        console.log("Animazione iniziata");
-      },
-      onComplete: function() {
-        console.log("Animazione completata");
-      }
-    });
+    const tl = gsap.timeline();
     
     // 1. Anima i titoli
-    tl.to(safeSelect('product_title', fromNum), {
+    tl.to(`.product_title.is--${fromStr}`, {
       y: direction > 0 ? -100 : 100,
       duration: duration,
       ease: "power2.inOut"
     }, 0);
     
-    tl.fromTo(safeSelect('product_title', toNum), {
+    tl.fromTo(`.product_title.is--${toStr}`, {
       y: direction > 0 ? 100 : -100
     }, {
       y: 0,
@@ -96,14 +76,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 0);
     
     // 2. Anima i sottotitoli
-    tl.to(safeSelect('product_sub', fromNum), {
+    tl.to(`.product_sub.is--${fromStr}`, {
       opacity: 0,
       filter: 'blur(10px)',
       duration: duration,
       ease: "power2.inOut"
     }, 0.1);
     
-    tl.fromTo(safeSelect('product_sub', toNum), {
+    tl.fromTo(`.product_sub.is--${toStr}`, {
       opacity: 0,
       filter: 'blur(10px)'
     }, {
@@ -114,14 +94,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 0.2);
     
     // 3. Anima i box immagine
-    tl.to(safeSelect('image_box', fromNum), {
+    tl.to(`.image_box.is--${fromStr}`, {
       scale: 0,
       opacity: 0,
       duration: duration,
       ease: "power2.inOut"
     }, 0);
     
-    tl.fromTo(safeSelect('image_box', toNum), {
+    tl.fromTo(`.image_box.is--${toStr}`, {
       scale: 0,
       opacity: 0
     }, {
@@ -132,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 0.1);
     
     // 4. Anima i paragrafi
-    tl.to(safeSelect('product_paragraph', fromNum), {
+    tl.to(`.product_paragraph.is--${fromStr}`, {
       opacity: 0,
       y: direction > 0 ? -30 : 30,
       filter: 'blur(10px)',
@@ -140,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
       ease: "power2.inOut"
     }, 0.2);
     
-    tl.fromTo(safeSelect('product_paragraph', toNum), {
+    tl.fromTo(`.product_paragraph.is--${toStr}`, {
       opacity: 0,
       y: direction > 0 ? 30 : -30,
       filter: 'blur(10px)'
@@ -152,14 +132,14 @@ document.addEventListener('DOMContentLoaded', function() {
       ease: "power2.inOut"
     }, 0.3);
     
-    // 5. Aggiorna il pulsante dinamico
+    // 5. Aggiorna il link del pulsante
     const dynamicButton = document.getElementById('dinamic-button');
     if (dynamicButton) {
       dynamicButton.href = buttonUrls[toIndex];
     }
   }
   
-  // Funzioni per navigare tra slide
+  // Funzione per andare alla slide successiva
   function goToNextSlide() {
     const fromIndex = currentIndex;
     const toIndex = (currentIndex + 1) % totalSlides;
@@ -168,6 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
     currentIndex = toIndex;
   }
   
+  // Funzione per andare alla slide precedente
   function goToPrevSlide() {
     const fromIndex = currentIndex;
     const toIndex = (currentIndex - 1 + totalSlides) % totalSlides;
@@ -176,29 +157,25 @@ document.addEventListener('DOMContentLoaded', function() {
     currentIndex = toIndex;
   }
   
-  // Assicurati che lo script aspetti un po' prima di inizializzare
-  // per evitare conflitti con altri script
-  setTimeout(function() {
-    // Aggiungi listener ai pulsanti
-    const nextButton = document.getElementById('next');
-    if (nextButton) {
-      nextButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        goToNextSlide();
-      });
-      console.log("Listener aggiunto al pulsante next");
-    }
-    
-    const prevButton = document.getElementById('prev');
-    if (prevButton) {
-      prevButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        goToPrevSlide();
-      });
-      console.log("Listener aggiunto al pulsante prev");
-    }
-    
-    // Inizializza l'UI
-    initializeUI();
-  }, 500);
+  // Aggiungi listener ai pulsanti
+  const nextButton = document.getElementById('next');
+  if (nextButton) {
+    nextButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      goToNextSlide();
+    });
+    console.log("Listener aggiunto al pulsante next");
+  }
+  
+  const prevButton = document.getElementById('prev');
+  if (prevButton) {
+    prevButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      goToPrevSlide();
+    });
+    console.log("Listener aggiunto al pulsante prev");
+  }
+  
+  // Inizializza con un breve ritardo
+  setTimeout(initializeUI, 500);
 });

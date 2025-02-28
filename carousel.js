@@ -1,6 +1,12 @@
-document.addEventListener("DOMContentLoaded", function() {
-  // Array of product URLs (order corresponds to slides 1-8)
-  const productLinks = [
+window.onload = function() {
+  console.log("Script vanilla minimale avviato");
+  
+  // Variabili di stato
+  var currentIndex = 0;
+  var totalSlides = 8;
+  
+  // URL per il pulsante dinamico
+  var buttonUrls = [
     "https://www.purapharma.eu/products/levacel-plus",
     "https://www.purapharma.eu/products/venestasi",
     "https://www.purapharma.eu/products/ansirem",
@@ -11,94 +17,62 @@ document.addEventListener("DOMContentLoaded", function() {
     "https://www.purapharma.eu/products/tricopyl"
   ];
   
-  let currentIndex = 0;
-  const totalSlides = productLinks.length;
+  // Ottieni i pulsanti
+  var nextButton = document.getElementById('next');
+  var prevButton = document.getElementById('prev');
+  var dynamicButton = document.getElementById('dinamic-button');
   
-  // Updates the dynamic button's href attribute based on slide index
-  function updateButtonLink(index) {
-    const dynamicButton = document.getElementById("dinamic-button");
-    dynamicButton.setAttribute("href", productLinks[index]);
+  // Funzione per mostrare/nascondere elementi
+  function showSlide(index) {
+    // Nascondi tutto prima
+    for (var i = 1; i <= totalSlides; i++) {
+      var numStr = i < 10 ? "0" + i : i.toString();
+      var titleElements = document.querySelectorAll('.product_title.is--' + numStr);
+      var subElements = document.querySelectorAll('.product_sub.is--' + numStr);
+      var imageElements = document.querySelectorAll('.image_box.is--' + numStr);
+      var paragraphElements = document.querySelectorAll('.product_paragraph.is--' + numStr);
+      
+      for (var el of titleElements) el.style.display = 'none';
+      for (var el of subElements) el.style.display = 'none';
+      for (var el of imageElements) el.style.display = 'none';
+      for (var el of paragraphElements) el.style.display = 'none';
+    }
+    
+    // Mostra solo gli elementi dell'indice corrente
+    var activeStr = (index + 1) < 10 ? "0" + (index + 1) : (index + 1).toString();
+    var activeTitleElements = document.querySelectorAll('.product_title.is--' + activeStr);
+    var activeSubElements = document.querySelectorAll('.product_sub.is--' + activeStr);
+    var activeImageElements = document.querySelectorAll('.image_box.is--' + activeStr);
+    var activeParagraphElements = document.querySelectorAll('.product_paragraph.is--' + activeStr);
+    
+    for (var el of activeTitleElements) el.style.display = 'block';
+    for (var el of activeSubElements) el.style.display = 'block';
+    for (var el of activeImageElements) el.style.display = 'block';
+    for (var el of activeParagraphElements) el.style.display = 'block';
+    
+    // Aggiorna link pulsante
+    if (dynamicButton) {
+      dynamicButton.href = buttonUrls[index];
+    }
   }
   
-  // Handles slide transitions.
-  // 'direction' should be "next" or "prev" to determine the animation direction.
-  function goToSlide(newIndex, direction = "next") {
-    const prevIndex = currentIndex;
-    // Cycle the index (ensures looping)
-    currentIndex = (newIndex + totalSlides) % totalSlides;
-    
-    // Set a multiplier to reverse animations on "prev"
-    const dirMultiplier = direction === "next" ? 1 : -1;
-    
-    // Animate Titles: current moves out upward (or downward if "prev") & new slides in.
-    gsap.to(`.product_title.is--0${prevIndex + 1}`, { 
-      y: -100 * dirMultiplier, 
-      opacity: 0, 
-      duration: 0.5, 
-      ease: "power2.out" 
+  // Imposta lo stato iniziale
+  showSlide(0);
+  
+  // Aggiungi eventi ai pulsanti
+  if (nextButton) {
+    nextButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      currentIndex = (currentIndex + 1) % totalSlides;
+      showSlide(currentIndex);
     });
-    gsap.fromTo(`.product_title.is--0${currentIndex + 1}`, 
-      { y: 100 * dirMultiplier, opacity: 0 }, 
-      { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
-    );
-    
-    // Animate Subtitles: fade out current, fade in new
-    gsap.to(`.product_sub.is--0${prevIndex + 1}`, { 
-      opacity: 0, 
-      filter: "blur(10px)", 
-      duration: 0.5, 
-      ease: "power2.out" 
-    });
-    gsap.to(`.product_sub.is--0${currentIndex + 1}`, { 
-      opacity: 1, 
-      filter: "blur(0px)", 
-      duration: 0.5, 
-      ease: "power2.out" 
-    });
-    
-    // Animate Images: current scales down, new scales up
-    gsap.to(`.image_box.is--0${prevIndex + 1}`, { 
-      scale: 0, 
-      opacity: 0, 
-      duration: 0.5, 
-      ease: "power2.out" 
-    });
-    gsap.fromTo(`.image_box.is--0${currentIndex + 1}`, 
-      { scale: 0, opacity: 0 }, 
-      { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out" }
-    );
-    
-    // Animate Paragraphs: current goes down (y:30) and fades out; new comes from y:30 into place.
-    gsap.to(`.product_paragraph.is--0${prevIndex + 1}`, { 
-      y: 30, 
-      opacity: 0, 
-      filter: "blur(10px)", 
-      duration: 0.5, 
-      ease: "power2.out" 
-    });
-    gsap.to(`.product_paragraph.is--0${currentIndex + 1}`, { 
-      y: 0, 
-      opacity: 1, 
-      filter: "blur(0px)", 
-      duration: 0.5, 
-      ease: "power2.out" 
-    });
-    
-    // Update the dynamic button link for the new slide.
-    updateButtonLink(currentIndex);
   }
   
-  // Event listeners for navigation buttons
-  document.getElementById("next").addEventListener("click", function(e) {
-    e.preventDefault();
-    goToSlide(currentIndex + 1, "next");
-  });
-  
-  document.getElementById("prev").addEventListener("click", function(e) {
-    e.preventDefault();
-    goToSlide(currentIndex - 1, "prev");
-  });
-  
-  // Initialize the dynamic button link on page load.
-  updateButtonLink(currentIndex);
-});
+  if (prevButton) {
+    prevButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+      showSlide(currentIndex);
+    });
+  }
+};

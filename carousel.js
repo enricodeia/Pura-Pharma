@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded', function() {
-  // Array dei link dei prodotti in ordine
+document.addEventListener("DOMContentLoaded", function() {
+  // Array of product URLs (order corresponds to slides 1-8)
   const productLinks = [
     "https://www.purapharma.eu/products/levacel-plus",
     "https://www.purapharma.eu/products/venestasi",
@@ -12,55 +12,93 @@ document.addEventListener('DOMContentLoaded', function() {
   ];
   
   let currentIndex = 0;
-  const totalItems = productLinks.length;
-
-  // Debug: Controlla se il primo elemento viene selezionato correttamente
-  console.log('Element .product_title.is--01:', document.querySelector('.product_title.is--01'));
-
-  // Funzione per aggiornare il link del bottone dinamico
+  const totalSlides = productLinks.length;
+  
+  // Updates the dynamic button's href attribute based on slide index
   function updateButtonLink(index) {
-    const dynamicButton = document.getElementById('dinamic-button');
-    dynamicButton.setAttribute('href', productLinks[index]);
+    const dynamicButton = document.getElementById("dinamic-button");
+    dynamicButton.setAttribute("href", productLinks[index]);
   }
-
-  // Funzione per gestire la transizione tra le slide
-  function goToSlide(newIndex) {
+  
+  // Handles slide transitions.
+  // 'direction' should be "next" or "prev" to determine the animation direction.
+  function goToSlide(newIndex, direction = "next") {
     const prevIndex = currentIndex;
-    // Assicurati che l'indice sia ciclico
-    currentIndex = (newIndex + totalItems) % totalItems;
-
-    // Anima il titolo: quello corrente esce e il successivo entra
-    gsap.to(`.product_title.is--0${prevIndex + 1}`, { y: -100, opacity: 0, duration: 0.5 });
-    gsap.fromTo(`.product_title.is--0${currentIndex + 1}`, { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5 });
-
-    // Anima il sottotitolo
-    gsap.to(`.product_sub.is--0${prevIndex + 1}`, { opacity: 0, filter: 'blur(10px)', duration: 0.5 });
-    gsap.to(`.product_sub.is--0${currentIndex + 1}`, { opacity: 1, filter: 'blur(0px)', duration: 0.5 });
-
-    // Anima l'immagine: quella corrente si riduce, quella successiva si ingrandisce
-    gsap.to(`.image_box.is--0${prevIndex + 1}`, { scale: 0, opacity: 0, duration: 0.5 });
-    gsap.fromTo(`.image_box.is--0${currentIndex + 1}`, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5 });
-
-    // Anima il paragrafo
-    gsap.to(`.product_paragraph.is--0${prevIndex + 1}`, { y: 30, opacity: 0, filter: 'blur(10px)', duration: 0.5 });
-    gsap.to(`.product_paragraph.is--0${currentIndex + 1}`, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.5 });
-
-    // Aggiorna il link del bottone dinamico
+    // Cycle the index (ensures looping)
+    currentIndex = (newIndex + totalSlides) % totalSlides;
+    
+    // Set a multiplier to reverse animations on "prev"
+    const dirMultiplier = direction === "next" ? 1 : -1;
+    
+    // Animate Titles: current moves out upward (or downward if "prev") & new slides in.
+    gsap.to(`.product_title.is--0${prevIndex + 1}`, { 
+      y: -100 * dirMultiplier, 
+      opacity: 0, 
+      duration: 0.5, 
+      ease: "power2.out" 
+    });
+    gsap.fromTo(`.product_title.is--0${currentIndex + 1}`, 
+      { y: 100 * dirMultiplier, opacity: 0 }, 
+      { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+    );
+    
+    // Animate Subtitles: fade out current, fade in new
+    gsap.to(`.product_sub.is--0${prevIndex + 1}`, { 
+      opacity: 0, 
+      filter: "blur(10px)", 
+      duration: 0.5, 
+      ease: "power2.out" 
+    });
+    gsap.to(`.product_sub.is--0${currentIndex + 1}`, { 
+      opacity: 1, 
+      filter: "blur(0px)", 
+      duration: 0.5, 
+      ease: "power2.out" 
+    });
+    
+    // Animate Images: current scales down, new scales up
+    gsap.to(`.image_box.is--0${prevIndex + 1}`, { 
+      scale: 0, 
+      opacity: 0, 
+      duration: 0.5, 
+      ease: "power2.out" 
+    });
+    gsap.fromTo(`.image_box.is--0${currentIndex + 1}`, 
+      { scale: 0, opacity: 0 }, 
+      { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out" }
+    );
+    
+    // Animate Paragraphs: current goes down (y:30) and fades out; new comes from y:30 into place.
+    gsap.to(`.product_paragraph.is--0${prevIndex + 1}`, { 
+      y: 30, 
+      opacity: 0, 
+      filter: "blur(10px)", 
+      duration: 0.5, 
+      ease: "power2.out" 
+    });
+    gsap.to(`.product_paragraph.is--0${currentIndex + 1}`, { 
+      y: 0, 
+      opacity: 1, 
+      filter: "blur(0px)", 
+      duration: 0.5, 
+      ease: "power2.out" 
+    });
+    
+    // Update the dynamic button link for the new slide.
     updateButtonLink(currentIndex);
   }
-
-  // Event listener per il pulsante "next"
-  document.getElementById('next').addEventListener('click', function(e) {
+  
+  // Event listeners for navigation buttons
+  document.getElementById("next").addEventListener("click", function(e) {
     e.preventDefault();
-    goToSlide(currentIndex + 1);
+    goToSlide(currentIndex + 1, "next");
   });
-
-  // Event listener per il pulsante "prev"
-  document.getElementById('prev').addEventListener('click', function(e) {
+  
+  document.getElementById("prev").addEventListener("click", function(e) {
     e.preventDefault();
-    goToSlide(currentIndex - 1);
+    goToSlide(currentIndex - 1, "prev");
   });
-
-  // Inizializza il bottone dinamico con il primo link
+  
+  // Initialize the dynamic button link on page load.
   updateButtonLink(currentIndex);
 });

@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", function() {
   ButtonUtils.initTextButton();
   AnimationUtils.initAccordion();
   CarouselUtils.initImageCarousel();
+  // GLTransitionUtils.initProductCarousel(); - Removed
+  // CarouselUtils.initCarouselContentTrigger(); - Removed
   EffectsUtils.initPillsFooterEffect();
 });
 
@@ -457,6 +459,8 @@ const AnimationUtils = {
   }
 };
 
+// GL Transition Utilities
+const GLTransitionUtils = {};
 
 // Footer Effects Utilities
 const EffectsUtils = {
@@ -826,5 +830,5 @@ const CarouselUtils = {
       resizeCarousel();
       window.addEventListener("resize", resizeCarousel);
     });
-  },
-  
+  }
+};
